@@ -8,7 +8,6 @@ Translator
 Copyright(c): DFSA Software Develop Center
 """
 import numpy
-import cv2
 
 DATA = {
     (176, 46, 38): 'red_concrete',
@@ -54,23 +53,37 @@ class Color(object):
         return obj.length
 
 
-def get_closest(src_rgb):
+def get_closest(src_rgb, isImag):
     for color in color_list:
         color.calc_length(src_rgb)
     color_list.sort(key=Color.get_length)
-    return color_list[0].rgb
+    if isImag:
+        return color_list[0].rgb
+    else:
+        return color_list[0].block_name
 
 
-def translate_img(img: numpy.array):
+def translate_img(img: numpy.array, isImage=True):
     """Translate a img to block map"""
     block_map = []
     for raw in img:
         raw_map = []
         for cell in raw:
             color_id = tuple(cell)
-            raw_map.append(get_closest(color_id))
+            raw_map.append(get_closest(color_id, isImage))
         block_map.append(raw_map)
     return block_map
+
+
+def build_command(block_map):
+    offset = [1, 1]
+    command_lines = []
+    for rindex, raw in enumerate(block_map):
+        for cindex, cell in enumerate(raw):
+            position = f'~{rindex + 1 + offset[0]} ~ ~{cindex + 1 + offset[1]}'
+            command = f'/setblock {position} minecraft:{cell}'
+            command_lines.append(command)
+    return command_lines
 
 
 color_list = []
@@ -80,12 +93,4 @@ for color_code in DATA.keys():
     color_list.append(c)
 
 if __name__ == '__main__':
-    # predata = DATA.split('\n')[:-1]
-    # dist = []
-    # for d in predata:
-    #     r, g, b = d[:2], d[2:4], d[4:6]
-    #     new_line = f'{int(r,base=16)},{int(g,base=16)},{int(b,base=16)},{d[7:]}\n'
-    #     dist.append(new_line)
-    # with open('data.log', 'w') as f:
-    #     f.writelines(dist)
     print(get_closest((123, 123, 255)))
