@@ -32,10 +32,9 @@ def read_image(img_path: str, **kwargs):
     block_map = translator.translate_img(rgb_img, False)
 
     cv2.imshow('block_map', map)
-    cv2.imshow('origin_map', origin_img)
-    cv2.waitKey()
+    # cv2.imshow('origin_map', origin_img)
+    # cv2.waitKey()
     return block_map
-
 
 if __name__ == '__main__':
     bm = read_image('/home/tang/file/download/pages/cpc.jpeg')
